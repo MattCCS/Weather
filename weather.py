@@ -10,7 +10,6 @@ import sys
 import urllib.request
 
 
-URL_ZIPCODE = "http://ipinfo.io"
 URL_WEATHER_FORM = "http://wttr.in/{}?lang={}"
 
 DEFAULT_LANG = "en"
@@ -30,21 +29,6 @@ def get_zipcode_by_ip():
     resp = urllib.request.urlopen(req)
     data = json.loads(resp.read())
     return data['postal']
-
-
-def guarantee_location(location):
-    # default behavior is to find zip code
-    if not location:
-        print("[ ] No location provided, finding zip code...")
-        zipcode = get_zipcode_by_ip()
-        if not is_valid_zipcode(zipcode):
-            print("[!] Got bad zip code from ipinfo.io: {}".format(zipcode))
-            sys.exit()
-        print("[+] Got zip code: {}".format(zipcode))
-        location = zipcode
-
-    # can be zipcode or city name, wttr.io don't care!
-    return location
 
 
 def is_valid_zipcode(zipcode):
@@ -76,7 +60,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    location = guarantee_location(args.location)
+    location = args.location if args.location else ''
     print(get_weather_by_location(location, args.lang))
 
 
