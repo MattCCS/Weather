@@ -19,18 +19,6 @@ CURL_HEADER = {
 }
 
 
-def get_zipcode_by_ip():
-    req = urllib.request.Request(
-        URL_ZIPCODE,
-        data=None,
-        headers=CURL_HEADER,
-    )
-
-    resp = urllib.request.urlopen(req)
-    data = json.loads(resp.read())
-    return data['postal']
-
-
 def is_valid_zipcode(zipcode):
     return zipcode.isdigit() and len(zipcode) == 5
 
