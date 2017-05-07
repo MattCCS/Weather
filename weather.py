@@ -7,6 +7,7 @@ An all-in-one tool to get the weather!
 import argparse
 import json
 import sys
+import urllib.parse
 import urllib.request
 
 
@@ -58,6 +59,7 @@ def try_to_guarantee_location(location):
 
 
 def get_weather_by_location(location, language, full):
+    location = urllib.parse.quote_plus(location)
     url = URL_WEATHER_FORM.format(location, language) + ("" if full else "&n&1")
     full_msg = "full" if full else "today's"
     location_msg = f" for {location}" if location else ""
