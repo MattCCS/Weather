@@ -80,7 +80,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Prints a weather report for the given location. Does a reverse-lookup on your IP if no location provided."
     )
-    parser.add_argument("location", help="Zip code, city, etc. (optional)", nargs="?")
+    parser.add_argument("location", help="Zip code, city, etc. (optional)", nargs="*")
     parser.add_argument("-f", "--full", help="Show the full weather report (exceeds 80x24)", default=False, action="store_true")
     parser.add_argument("-l", "--lang", help="The weather report langauge", default=DEFAULT_LANG)
     return parser.parse_args()
@@ -88,7 +88,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    location = try_to_guarantee_location(args.location)
+    location = try_to_guarantee_location(" ".join(args.location))
     print(get_weather_by_location(location, args.lang, args.full))
 
 
