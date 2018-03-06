@@ -5,8 +5,6 @@ An all-in-one tool to get the weather!
 """
 
 import argparse
-import json
-import sys
 import urllib.parse
 import urllib.request
 
@@ -31,11 +29,13 @@ def get_location_by_ip():
     resp = urllib.request.urlopen(req)
     data = resp.read().decode('utf-8')
 
-    city = data.split("<li>City : ")[1].split("</li>")[0]
-    region = data.split("<li>State/Province : ")[1].split("</li>")[0]
-    country = data.split("<li>Country : ")[1].split(" <")[0]
+    city = data.split("<strong>City</strong>")[1].split("<div>")[0].split("</div>")[1].strip()
+    region = data.split("<strong>Region</strong>")[1].split("</td>")[0].split("</div>")[1].strip()
+    country = data.split("<strong>Country</strong>")[1].split("</td>")[0].split("</span>")[1].strip()
 
-    return f"{city}, {region}, {country}"
+    # The tilde tells wttr.in to search for the
+    # location name, which tends to resolve name errors.
+    return f"~{city}, {region}, {country}"
 
 
 def try_to_guarantee_location(location):
@@ -51,7 +51,7 @@ def try_to_guarantee_location(location):
             return location
         else:
             print(f"[-] Got bad location info from {URL_LOCATION_BASE}")
-    except urllib.error:
+    except urllib.error.HTTPError:
         print(f"[!] Couldn't reach {URL_LOCATION_BASE}")
 
     print(f"[ ] Trying {URL_WEATHER_BASE} default...")
@@ -82,13 +82,16 @@ def parse_args():
     )
     parser.add_argument("location", help="Zip code, city, etc. (optional)", nargs="*")
     parser.add_argument("-f", "--full", help="Show the full weather report (exceeds 80x24)", default=False, action="store_true")
-    parser.add_argument("-l", "--lang", help="The weather report langauge", default=DEFAULT_LANG)
+    parser.add_argument("-l", "--lang", help="The weather report langauge (en, es, ...)", default=DEFAULT_LANG)
+    parser.add_argument("-p", "--place", help="Treat the location as a place name (passes '~' to wttr.in)", default=False, action="store_true")
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     location = try_to_guarantee_location(" ".join(args.location))
+    if args.place and not location.startswith("~"):
+        location = "~" + location
     print(get_weather_by_location(location, args.lang, args.full))
 
 
